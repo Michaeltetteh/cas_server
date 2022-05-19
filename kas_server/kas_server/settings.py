@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cas_server',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'kas_server.urls'
@@ -123,3 +125,63 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#CAS CONFIG
+
+#Auth
+CAS_AUTH_CLASS = "cas_server.auth.DjangoAuthUser"
+SESSION_COOKIE_AGE = 86400
+CAS_TGT_VALIDITY = None
+CAS_PROXY_CA_CERTIFICATE_PATH = True
+CAS_SLO_MAX_PARALLEL_REQUESTS = 10
+CAS_SLO_TIMEOUT = 5
+
+#Federation settings
+CAS_FEDERATE = False  # Disable Federation Mode
+CAS_FEDERATE_REMEMBER_TIMEOUT = 604800
+
+
+# Tickets Validity Settings
+CAS_TICKET_VALIDITY = 60
+CAS_PGT_VALIDITY = 3600  # 1 hour
+CAS_TICKET_TIMEOUT = 86400  # 24 hr
+
+# Tickets Miscellaneous Settings
+CAS_TICKET_LEN = 64
+CAS_LT_LEN = CAS_TICKET_LEN
+CAS_ST_LEN = CAS_TICKET_LEN
+CAS_PT_LEN = CAS_TICKET_LEN
+CAS_PGT_LEN = CAS_TICKET_LEN
+CAS_PGTIOU_LEN = CAS_TICKET_LEN
+CAS_LOGIN_TICKET_PREFIX = "LT"
+CAS_SERVICE_TICKET_PREFIX = "ST"
+CAS_PROXY_TICKET_PREFIX = "PT"
+CAS_PROXY_GRANTING_TICKET_PREFIX = "PGT"
+CAS_PROXY_GRANTING_TICKET_IOU_PREFIX = "PGTIOU"
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'cas_syslog': {
+            'format': 'cas: %(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'cas_syslog': {
+            'level': 'INFO',
+            'class': 'logging.handlers.SysLogHandler',
+            'address': '/dev/log',
+            'formatter': 'cas_syslog',
+        },
+    },
+    'loggers': {
+        'cas_server': {
+            'handlers': ['cas_syslog'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
